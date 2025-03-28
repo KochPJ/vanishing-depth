@@ -1,5 +1,16 @@
-# vanishing-depth
+# Vanishing Depth
+Official Implementation of:
+
 Preprint paper: **[Vanishing Depth: A Depth Adapter with Positional Depth Encoding for Generalized Image Encoders](https://www.arxiv.org/abs/2503.19947)**
+
+# Requirements
+Comming Soon
+
+# Code
+Comming Soon
+
+# Models
+Comming Soon
 
 # Citing this work:
 If you find this repository useful, please consider giving a star :star: and citation:
