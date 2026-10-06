@@ -1,7 +1,7 @@
 # Vanishing Depth
 Official Implementation of:
 
-Paper: **[Vanishing Depth: A Depth Adapter with Positional Depth Encoding for Generalized Image Encoders](https://www.arxiv.org/abs/2503.19947)**
+Paper: **[Vanishing Depth: Training Generalized Depth Adapters with Sinusoidal Depth Preprocessing for Pretrained RGB Encoders](https://www.arxiv.org/abs/2503.19947)**
 
 Accepted to **[IntelliSys 2026](https://saiconference.com/IntelliSys)**
 
