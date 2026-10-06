@@ -1,0 +1,272 @@
+
+# Diffusion Policy general parameters
+
+# ori image size W, H = 1280, 720
+image_forward_shape:
+  #- 644 # 320
+  #- 490 # 240
+  - 448 # 288
+  - 448 # 216
+
+image_resize_shape:
+  - 448 # 320
+  - 448 # 240
+#image_resize_shape: 
+#  - 644 # 320
+#  - 490 # 240
+
+image_static_crop:
+  - 416 # left
+  - 0 # top
+  - 864 # right
+  - 448 # bot
+
+# Whitelist & goal-balanced sampling
+whitelist_path: '/mnt/kikerp/GurkenTrainData/whitelist.json'
+use_whitelist: true
+use_goal_balanced_sampling: true
+goal_group_threshold_m: 0.01
+max_bags_per_goal_group: 0 # 0 = no limit
+
+action_horizon: 8
+encoder_name: "Dino" # vd (aka paul rgbd-vit), vit or resnet
+encoder_version: "V2-small" # small, base, large (resnet is allways resnet18) (vd is allways base )
+pretrained: "Dino" # Dino, ImageNet, or CLIP  # this special resnet 1.5v with other norm layers has no pretrained weights (vd loads from disk)
+additional_cls_layers: [3, 6, 9]
+backbone_lr_mult: 1.0
+freeze_backbone: false
+freeze_color_encoder: true
+
+vision_feature_dim: 384 #2816 #384 #512  #384 for small, 512 for resnet, 768 for base and large vit
+lowdim_obs_dim: 6 # 6 robot state dims relative XYZ + rvec plus relative time in ms between the 2 view input images x obs_horizon  
+num_views: 2
+action_dim: 8 # 3 xyz, 3 rvec, 1 dist2schnapp, 1 deg2schnapp
+
+batch_timeout_s: 240 # seconds
+batch_size: 24 #24 96 #128 #128 #128 #32 #96
+num_workers: 20 # 8 #32 #16
+num_eval_workers: 4 #16 asd 
+checkpoint_path: "./data/saved_models"
+ds_out_path: "multiview" #"real_gurke_easy"
+load_pretrained_policy_path: ""
+dataset_path:
+  #- "/data/rosbags/real_gurke_easy"  #mechano_gurke_all" # mechano_gurke_all_dataset" #mechano_rotation_test_dataset"
+  #- "/data/rosbags/real_gurke" 
+  #- "/data/rosbags/real_gustav"
+  - "/mnt/kikerp/GurkenTrainData//rosbags/real_gurke_all"
+  - "/mnt/kikerp/GurkenTrainData//rosbags/real_recoveries"
+  - "/mnt/kikerp/GurkenTrainData//rosbags/real_test_data/test_bad_staengel"
+  - "/mnt/kikerp/GurkenTrainData//rosbags/real_test_data/test_doppel_schnapp"
+  - "/mnt/kikerp/GurkenTrainData//rosbags/real_test_data/test_good_staengel"
+  - "/mnt/kikerp/GurkenTrainData//rosbags/real_test_data/test_recoveries"
+  #- "/data/rosbags/real_gurke_verschiedene" 
+  #-  "/data/rosbags/tomato"
+  #- "/data/rosbags/real_test_data/test_bad_staengel"
+  #- "/data/rosbags/real_test_data/test_doppel_schnapp"
+  #- "/data/rosbags/real_test_data/test_good_staengel"
+  #- "/data/rosbags/real_test_data/test_recoveries"
+
+test_dataset_paths:
+  - "/mnt/kikerp/GurkenTrainData/rosbags/real_test_data/test_dual_cam"
+#  - "/data/rosbags/real_test_data/test_bad_staengel"
+#  - "/data/rosbags/real_test_data/test_doppel_schnapp"
+#  - "/data/rosbags/real_test_data/test_good_staengel"
+#  - "/data/rosbags/real_test_data/test_recoveries"
+
+full_test_every_epoch: 1
+start_full_test_epoch: 0
+
+
+unpack_path: "/mnt/kikerp/GurkenTrainData/rosbags_unpacked" # mechano_gurke_all_dataset" #mechano_rotation_test_dataset"
+
+unpack_npy_paths: 
+  - "/mnt/kikerp/GurkenTrainData/rosbags_unpacked"
+  - "/mnt/data/paul/rosbags_unpacked_data"
+  - "/mnt/wimi/paul/rosbags_unpacked_wimi"
+  - "/home/kochpaul/rosbags_unpacked_root"
+  
+load_cropped: true
+
+cropped_unpack_path: 
+  - "/mnt/kikerp/GurkenTrainData/rosbags_unpacked_crop_448_kikerp"
+  - "/mnt/data/paul/rosbags_unpacked_crop_448_data"
+  - "/mnt/wimi/paul/rosbags_unpacked_crop_448_wimi"
+  - "/home/kochpaul/rosbags_unpacked_crop_448_root"
+  
+cache_path: "/data/cache"
+lr: 0.00005 # 0.0001
+image_fps_downsample: false
+image_downsample_to_fps: 10
+obs_horizon: 2
+extend_train_obs_sampling: 2
+pred_horizon: 16
+extend_obs_horizon_agent_pos: false
+
+
+# training sampling
+multi_view_sampling_p: 0.75 # sampling  of multi view 
+near_sampling_p: 0.25 # 
+very_close_sampling_p: 0.25 # 
+finish_sampling_p: 0.05 # 
+recovery_sampling_p: 0.0
+far_sampling_p: 0.25
+start_sampling_p: 0.20              # probability of sampling start phase
+start_max_time_s: 3.0               # max seconds from bag start to consider
+start_min_frames: 5                 # minimum frames to qualify as start phase
+start_z_dominance_ratio: 0.6        # ratio of z-motion vs total xyz to detect "forward entered"
+start_min_lateral_motion_mm: 3.0    # minimum lateral (xy) or rotation to confirm orientation phase
+start_transition_window: 5          # sliding window size for detecting transition to forward
+drop_sensor_p: 0.10                 # chance to drop one sensor (make it noise) when we have the base and the up sensor
+sensor_drop_zero_p: 0.25             # p of the a dropped sensor to go to zeros, else we create load a background image and add gausian depth noise  
+
+# remaining p is far
+undersample_near_n_bags: 0 # set this above 0 and force the training to sample only from n bags in near
+
+# what is near ? do not need to recreate the datset
+near_threshold_pos: 0.05      # used for defining the sampling
+near_threshold_deg: 5         # used for defining the sampling
+very_close_threshold_pos: 0.015      # used for defining the sampling
+very_close_threshold_deg: 5         # used for defining the sampling
+finish_threshold_pos: 0.0025   # used for defining the sampling
+finish_threshold_deg: 0.5     # used for defining the sampling
+
+# changes the AI learning scale
+dist_2_schnapp_treshold: 0.15 # estimate % dist from 15cm distance to schnappung
+deg_2_schnapp_treshold: 90    # estimate % dist from 20° distance to schnappung
+
+# cutting the trajectories to the max speed and detects holds with the stop speed threshold. 
+interpolate_action_speed: false
+time_dependent_sampling: true
+robot_joint_state_sampling: 10 # hz of the joints we sample and unpack from the ros bags
+time_ms_per_step: 100 # time horizon is then pred_horizon * time_ms_per_step , e.g. 16x100 = 1.6s
+max_speed_threshold: 0.015
+stop_speed_threshold: 0.0005
+
+gripper_schnapp_threshold: 179.0 # 151.0 # the threshold which determines whether the gripper is closed or open
+gripper_reverse_open: false # the cutting reverses -> large value = close and small number = open....
+
+# in meter
+tcp_offset_x: 0.0
+tcp_offset_y: 0.0
+tcp_offset_z: 0.235
+
+
+# not use yet
+tcp_offset_r: 0.0 # not use yet | in rad 
+tcp_offset_p: 0.0 # not use yet | in rad 
+tcp_offset_y: 0.0 # not use yet | in rad 
+
+# diffusion steps for traininng and then in eval, should be both the same for optimal inference performance
+num_diffusion_iters: 100
+eval_ddim_steps: 10
+
+# training 
+ema_decay: 0.9999
+save_ema: true
+num_epochs: 300 # number of times we evaluate and save the model.
+num_steps_per_epoch: 2500 #2500 #2500 #2500  # steps how many training batches are prossed ber epoch
+debug: false
+debug_dataloader: false
+image_random_crop_aug: false
+image_brightness_aug: true
+apply_image_static_crop: true
+random_background_with_depth: false
+background_root: '/data/backgrounds'
+use_depth_completed: false
+depth_cut_treshold: 0.24000 # 0.2400 without pe
+depth_cut_treshold_pe: 0.50000
+use_depth_positional_encoding: true
+depth_pe_channels: 8          # number of output channels (must be even)
+depth_pe_temperature: 0.00574 # frequency spread: log-spaced from 1 to this value
+depth_pe_temperature_min_band: 5 # mm
+with_depth: true
+multi_gpu: true
+max_mgpus: 1 # for eval max gpus 
+resume_train: true
+
+#Robot specific parameters UR5
+tcp_link_name: "tool0"
+base_link_name: "base_link"
+urdf_path: "config/ur5e_calibrated_no_mesh_no_gripper.urdf" #"config/ur5_with_gripper_no_mesh.urdf"
+num_joints: 6
+joint_names_order:
+ - shoulder_pan_joint
+ - shoulder_lift_joint
+ - elbow_joint
+ - wrist_1_joint
+ - wrist_2_joint
+ - wrist_3_joint
+
+# # Robot specific parameters FR3
+# tcp_link_name: "fr3_hand_tcp"
+# base_link_name: "base"
+# urdf_path: "config/fr3_franka_hand.urdf"
+# num_joints: 7
+# joint_names_order:
+#   - fr3_joint1
+#   - fr3_joint2
+#   - fr3_joint3
+#   - fr3_joint4
+#   - fr3_joint5
+#   - fr3_joint6
+#   - fr3_joint7
+
+
+# Gripper parameters
+use_gripper: true
+
+#gripper_state_source: "joint_states"
+#gripper_state_topic_name: ""   # unused for joint_states
+#gripper_joint_names: ["fr3_finger_joint1", "fr3_finger_joint2"]
+gripper_state_source: "topic"
+gripper_state_topic_name: "/robotiq_gripper/position"
+gripper_joint_names: []   
+
+
+gripper_min_width_m: 0.0
+gripper_max_width_m: 0.08
+
+gripper_command_mode: "trajectory"
+gripper_single_command_idx: 10
+
+# Inference execution parameters
+
+camera_topic_name: "/robi1/rsd405/color/image_raw"
+depth_cam_topic_name: "/robi1/rsd405/depth/image_raw"
+base_rgb_topics:
+  - "/robi1/cam_419122270994/color/image_raw"
+  - "/robi1/rsd405/color/image_raw"      # legacy
+
+base_depth_topics:
+  - "/robi1/cam_419122270994/depth/image_raw"
+  - "/robi1/rsd405/depth/image_raw"      # legacy
+
+up_rgb_topics:
+  - "/robi1/cam_260322271196/color/image_raw"
+
+up_depth_topics:
+  - "/robi1/cam_260322271196/depth/image_raw"
+cam_time_max_ms: 500 # ms
+
+
+
+joint_states_topic_name: "/joint_states"
+anomaly_detection_topic_name: "/anomaly_detected"
+marker_publisher_topic_name: "/rviz_visual_tools"
+trajectory_publisher_topic_name: "/diffusion_policy/trajectory"
+gripper_publisher_topic_name: "/diffusion_policy/gripper_position"
+
+# bag-level split and eval settings
+num_valid_bags: 0
+num_test_bags: 0
+eval_threshold_low: 0.2
+eval_threshold_high: 0.8
+seed: 42
+overwrite_data: false
+overwrite_image_data: false
+
+# W&B  (optinal for results visualization on weights&biases)
+wandb_enabled: false
+wandb_project: "Gurke"
+wandb_entity: "paul-koch"
+wandb_run_name: "run-resnet-depth_new"

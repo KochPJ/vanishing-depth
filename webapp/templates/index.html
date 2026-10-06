@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Vanishing Depth Analyzer</title>
+
+  <style>
+    :root {
+      --background: #090c12;
+      --background-soft: #0d1119;
+      --panel: #141a27;
+      --panel-soft: #1c2434;
+      --border: #2d3951;
+      --text: #edf3ff;
+      --muted: #9baac2;
+      --accent: #5cabff;
+      --accent-hover: #77bcff;
+      --green: #63e1a7;
+      --danger: #d8526b;
+      --danger-hover: #ee667e;
+      --warning: #efc46b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--background);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11, 15, 23, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: 0.2px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    code {
+      padding: 2px 5px;
+      color: #b8d9ff;
+      border-radius: 4px;
+      background: #0f1622;
+    }
+
+    small {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    .top-spacing {
+      margin-top: 18px;
+    }
+
+    .field-label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 10px 11px;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      background: #0d121b;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(92, 171, 255, 0.14);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px 14px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      border: 0;
+      border-radius: 8px;
+      background: #2874c2;
+      transition: 0.15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #3988dc;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    button.secondary {
+      background: #334055;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #465775;
+    }
+
+    button.danger {
+      background: #95374b;
+    }
+
+    button.danger:hover:not(:disabled) {
+      background: #b9465d;
+    }
+
+    .dropzone {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      overflow: hidden;
+      color: var(--muted);
+      cursor: pointer;
+      border: 2px dashed #405877;
+      border-radius: 11px;
+      background: #0a1018;
+    }
+
+    .dropzone.dragging {
+      border-color: var(--accent);
+      background: #101b2b;
+    }
+
+    .dropzone img,
+    .dropzone canvas {
+      display: block;
+      width: 100%;
+      max-height: 460px;
+      object-fit: contain;
+    }
+
+    .dropzone canvas {
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .upload-input {
+      display: none;
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 120px;
+      margin-top: 0;
+    }
+
+    .checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 12px;
+    }
+
+    .checkboxes label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .checkboxes input {
+      width: auto;
+      margin: 0;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      padding: 10px;
+      border: 1px solid #263149;
+      border-radius: 9px;
+      background: var(--background-soft);
+    }
+
+    .metric span {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .metric strong {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    .small-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .status {
+      margin-top: 18px;
+      padding: 14px;
+      color: #c3ddff;
+      border: 1px solid #305479;
+      border-radius: 10px;
+      background: #102034;
+      font-size: 13px;
+    }
+
+    .status.error {
+      color: #ffc0cc;
+      border-color: #773342;
+      background: #2b151b;
+    }
+
+    .results {
+      margin-top: 24px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .image-card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--panel);
+    }
+
+    .image-card img {
+      display: block;
+      width: 100%;
+      background: #080b10;
+    }
+
+    .caption {
+      padding: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .caption strong {
+      color: var(--text);
+    }
+
+    .dpe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .range-value {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        padding: 14px;
+      }
+
+      main {
+        padding: 14px;
+      }
+
+      .inline-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Vanishing Depth — Interactive Analyzer</h1>
+    <p>
+      Checkpoint: <code>{{ checkpoint }}</code>
+      · device: <code>cuda:0</code>
+    </p>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>1. RGB input</h2>
+
+        <label class="field-label">
+          Browse RGB files in <code>data/demo</code>
+        </label>
+
+        <select id="rgbSelect">
+          <option value="">Select RGB image…</option>
+        </select>
+
+        <input
+          id="rgbUpload"
+          class="upload-input"
+          type="file"
+          accept=".png,.jpg,.jpeg,.bmp,.tif,.tiff,.webp"
+        />
+
+        <label class="field-label">
+          RGB preview / drag and drop
+        </label>
+
+        <div id="rgbDropzone" class="dropzone">
+          <span>Drop RGB image here or click to upload</span>
+        </div>
+
+        <p id="rgbLabel" class="small-note">
+          No RGB source selected.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>2. Depth input</h2>
+
+        <label class="field-label">
+          Browse depth files in <code>data/demo</code>
+        </label>
+
+        <select id="depthSelect">
+          <option value="">Select depth image…</option>
+        </select>
+
+        <input
+          id="depthUpload"
+          class="upload-input"
+          type="file"
+          accept=".png,.jpg,.jpeg,.bmp,.tif,.tiff,.webp,.npy,.npz"
+        />
+
+        <label class="field-label">
+          Depth preview / draw metric depth
+        </label>
+
+        <div id="depthDropzone" class="dropzone">
+          <span>
+            Drop depth image here, click to upload, or load RGB first for a blank depth canvas
+          </span>
+        </div>
+
+        <p id="depthLabel" class="small-note">
+          No depth source selected. RGB-only mode creates a zero depth map matching RGB resolution.
+        </p>
+
+        <div id="depthStats" class="metric-grid"></div>
+
+        <label class="field-label">
+          Depth scalar
+        </label>
+
+        <input
+          id="depthScalar"
+          type="number"
+          step="0.000001"
+          min="0.0000001"
+          value="1.0"
+        />
+
+        <p class="small-note">
+          Automatic scalar: <code>0.001</code> if maximum raw depth exceeds
+          <code>100</code>; otherwise <code>1.0</code>. Drawing values are always meters.
+        </p>
+      </div>
+    </section>
+
+    <section class="grid top-spacing">
+      <div class="card">
+        <h2>3. Draw / edit depth</h2>
+
+        <div class="inline-grid">
+          <div>
+            <label class="field-label">
+              Drawn depth [m]
+            </label>
+
+            <input
+              id="drawDepth"
+              type="number"
+              min="0"
+              step="0.01"
+              value="1.0"
+            />
+          </div>
+
+          <div>
+            <label class="field-label">
+              Brush radius [preview px]
+            </label>
+
+            <input
+              id="brushRadius"
+              type="number"
+              min="1"
+              max="200"
+              step="1"
+              value="5"
+            />
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="clearDepthButton" class="danger">
+            Clear depth to zero
+          </button>
+
+          <button id="undoStrokeButton" class="secondary">
+            Undo stroke
+          </button>
+
+          <button id="resetDepthButton" class="secondary">
+            Restore loaded depth
+          </button>
+        </div>
+
+        <p class="small-note">
+          Drawing is saved in normalized coordinates. The backend applies the strokes
+          at the original RGB resolution, independent of browser preview size.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>4. Generate missing depth</h2>
+
+        <label class="field-label">
+          Missing depth threshold t:
+          <span id="thresholdValue" class="range-value">0.50</span>
+        </label>
+
+        <input
+          id="threshold"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.50"
+        />
+
+        <div class="checkboxes">
+          <label>
+            <input id="usePerlin" type="checkbox" checked />
+            Perlin / coherent removal
+          </label>
+
+          <label>
+            <input id="usePixel" type="checkbox" />
+            Random per-pixel removal
+          </label>
+
+          <label>
+            <input id="usePatch" type="checkbox" />
+            Square patch cuts
+          </label>
+        </div>
+
+        <div class="inline-grid">
+          <div>
+            <label class="field-label">
+              Patch minimum [px]
+            </label>
+
+            <input
+              id="patchMin"
+              type="number"
+              min="1"
+              step="1"
+              value="32"
+            />
+          </div>
+
+          <div>
+            <label class="field-label">
+              Patch maximum [px]
+            </label>
+
+            <input
+              id="patchMax"
+              type="number"
+              min="1"
+              step="1"
+              value="128"
+            />
+          </div>
+        </div>
+
+        <label class="field-label">
+          Optional deterministic random seed
+        </label>
+
+        <input
+          id="randomSeed"
+          type="number"
+          step="1"
+          placeholder="Empty = new random mask each generation"
+        />
+
+        <button id="generateMissingButton">
+          Generate missing depth
+        </button>
+
+        <p class="small-note">
+          This is stage 1. The generated sparse depth is frozen and shown before
+          inference. Changing an option requires generating again.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="generatedStageSection"
+      class="top-spacing hidden"
+    >
+      <div class="card">
+        <h2>Generated missing depth — frozen stage</h2>
+
+        <div id="generatedMetrics" class="metric-grid"></div>
+
+        <div
+          id="generatedImages"
+          class="result-grid top-spacing"
+        ></div>
+      </div>
+    </section>
+
+    <section class="grid top-spacing">
+      <div class="card">
+        <h2>5. Process frozen sparse depth</h2>
+
+        <label class="field-label">
+          Processing minimum side:
+          <span id="processMinSizeValue" class="range-value">
+            448 px
+          </span>
+        </label>
+
+        <input
+          id="processMinSize"
+          type="range"
+          min="224"
+          max="896"
+          step="14"
+          value="448"
+        />
+
+        <p id="processSizeInfo" class="small-note">
+          The shorter RGB side becomes this selected size. The longer side keeps its
+          aspect ratio and is rounded upward to a multiple of the ViT patch size.
+        </p>
+
+        <button id="processButton" disabled>
+          Process depth completion
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>Pipeline behavior</h2>
+
+        <p class="small-note">
+          The model input uses the frozen sparse depth from stage 1. If editable
+          depth exceeds the checkpoint maximum range, it is scaled into that range
+          before inference; prediction is restored afterwards.
+        </p>
+
+        <p class="small-note">
+          SDP cosine maps use the original full depth before clear, drawing, and
+          missing-depth masking. PCA maps use encoder features from model inference
+          and are upsampled back to RGB native resolution.
+        </p>
+      </div>
+    </section>
+
+    <div id="statusBox" class="status hidden"></div>
+
+    <section
+      id="resultsSection"
+      class="results hidden"
+    >
+      <div class="card">
+        <h2>Reconstruction metrics</h2>
+
+        <div id="rmseMetrics" class="metric-grid"></div>
+        <div id="coverageMetrics" class="metric-grid"></div>
+
+        <p id="modelInfo" class="small-note"></p>
+      </div>
+
+      <h2 class="top-spacing">Depth completion result</h2>
+
+      <div
+        id="resultImages"
+        class="result-grid"
+      ></div>
+
+      <h2 class="top-spacing">
+        SDP / depth positional encoding — original depth cosine channels
+      </h2>
+
+      <div class="card">
+        <p id="sdpInfo" class="small-note"></p>
+
+        <div
+          id="sdpImages"
+          class="dpe-grid top-spacing"
+        ></div>
+      </div>
+
+      <h2 class="top-spacing">
+        Encoder feature PCA — upsampled to original RGB resolution
+      </h2>
+
+      <div
+        id="pcaImages"
+        class="result-grid"
+      ></div>
+    </section>
+  </main>
+
+  <script>
+    let rgbSource = null;
+    let depthSource = null;
+
+    let rgbMetadata = null;
+    let depthMetadata = null;
+
+    let depthRawStats = null;
+    let depthBaseImage = null;
+    let depthCanvas = null;
+
+    let depthCleared = false;
+    let strokes = [];
+    let activeStroke = null;
+
+    let generatedStageId = null;
+    let appConfig = null;
+
+    const rgbSelect = document.getElementById("rgbSelect");
+    const depthSelect = document.getElementById("depthSelect");
+
+    const rgbUpload = document.getElementById("rgbUpload");
+    const depthUpload = document.getElementById("depthUpload");
+
+    const rgbDropzone = document.getElementById("rgbDropzone");
+    const depthDropzone = document.getElementById("depthDropzone");
+
+    const depthScalar = document.getElementById("depthScalar");
+
+    const threshold = document.getElementById("threshold");
+    const thresholdValue = document.getElementById("thresholdValue");
+
+    const processMinSize = document.getElementById("processMinSize");
+    const processMinSizeValue = document.getElementById("processMinSizeValue");
+
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function numeric(value, fallback = 0) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function formatMeters(value) {
+      if (
+        value === null
+        || value === undefined
+        || !Number.isFinite(value)
+      ) {
+        return "n/a";
+      }
+
+      return `${value.toFixed(4)} m`;
+    }
+
+    function metricCard(label, value) {
+      return `
+        <div class="metric">
+          <span>${label}</span>
+          <strong>${value}</strong>
+        </div>
+      `;
+    }
+
+    function imageCard(title, imageUrl, details = "") {
+      if (!imageUrl) {
+        return `
+          <div class="image-card">
+            <div class="caption">
+              <strong>${title}</strong><br />
+              Unavailable for this encoder/backbone.
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="image-card">
+          <img src="${imageUrl}" alt="${title}" />
+          <div class="caption">
+            <strong>${title}</strong>
+            ${details ? `<br /><small>${details}</small>` : ""}
+          </div>
+        </div>
+      `;
+    }
+
+    function showStatus(message, isError = false) {
+      const box = document.getElementById("statusBox");
+
+      box.textContent = message;
+      box.classList.remove("hidden");
+      box.classList.toggle("error", isError);
+    }
+
+    function hideStatus() {
+      document
+        .getElementById("statusBox")
+        .classList.add("hidden");
+    }
+
+    async function fetchJson(url, options = undefined) {
+      const response = await fetch(url, options);
+
+      let payload = null;
+
+      try {
+        payload = await response.json();
+      } catch (_) {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          payload?.detail || `HTTP ${response.status}`
+        );
+      }
+
+      return payload;
+    }
+
+    function invalidateGeneratedStage() {
+      generatedStageId = null;
+
+      document
+        .getElementById("processButton")
+        .setAttribute("disabled", "disabled");
+
+      document
+        .getElementById("generatedStageSection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("resultsSection")
+        .classList.add("hidden");
+    }
+
+    async function loadConfig() {
+      appConfig = await fetchJson("/api/config");
+
+      processMinSize.min = appConfig.process_min_size_min;
+      processMinSize.max = appConfig.process_min_size_max;
+      processMinSize.step = appConfig.patch_size;
+      processMinSize.value = appConfig.process_min_size_default;
+
+      updateProcessSliderLabel();
+    }
+
+    async function loadDemoFiles() {
+      const files = await fetchJson("/api/demo-files");
+
+      for (const filename of files.rgb_files) {
+        const option = document.createElement("option");
+
+        option.value = filename;
+        option.textContent = filename;
+
+        rgbSelect.appendChild(option);
+      }
+
+      for (const filename of files.depth_files) {
+        const option = document.createElement("option");
+
+        option.value = filename;
+        option.textContent = filename;
+
+        depthSelect.appendChild(option);
+      }
+    }
+
+    function clearElement(element) {
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+    }
+
+    function renderDepthStats() {
+      if (!depthRawStats) {
+        document.getElementById("depthStats").innerHTML = "";
+        return;
+      }
+
+      const scalar = numeric(depthScalar.value, 1.0);
+
+      document.getElementById("depthStats").innerHTML = [
+        metricCard(
+          "Mean > 0",
+          formatMeters(depthRawStats.mean * scalar)
+        ),
+        metricCard(
+          "Min > 0",
+          formatMeters(depthRawStats.min * scalar)
+        ),
+        metricCard(
+          "Max > 0",
+          formatMeters(depthRawStats.max * scalar)
+        ),
+        metricCard(
+          "Std > 0",
+          formatMeters(depthRawStats.std * scalar)
+        ),
+        metricCard(
+          "Zero pixels",
+          `${depthRawStats.zero_percent.toFixed(2)}%`
+        ),
+        metricCard(
+          "Valid pixels",
+          depthRawStats.valid_pixels.toLocaleString()
+        ),
+      ].join("");
+    }
+
+    function setRgbPayload(payload) {
+      rgbSource = payload.source;
+      rgbMetadata = payload;
+
+      clearElement(rgbDropzone);
+
+      const image = new Image();
+      image.src = payload.preview_data_url;
+      image.alt = "RGB preview";
+
+      rgbDropzone.appendChild(image);
+
+      document.getElementById("rgbLabel").textContent =
+        `RGB: ${payload.label} · `
+        + `${payload.shape.width} × ${payload.shape.height}`;
+
+      invalidateGeneratedStage();
+
+      if (!depthSource) {
+        createBlankDepthCanvasFromRgb();
+      }
+    }
+
+    function setDepthPayload(payload) {
+      depthSource = payload.source;
+      depthMetadata = payload;
+      depthRawStats = payload.raw_stats;
+
+      depthScalar.value = payload.auto_scalar;
+
+      depthCleared = false;
+      strokes = [];
+      activeStroke = null;
+
+      renderDepthStats();
+
+      document.getElementById("depthLabel").textContent =
+        `Depth: ${payload.label} · `
+        + `${payload.shape.width} × ${payload.shape.height}`;
+
+      depthBaseImage = new Image();
+
+      depthBaseImage.onload = () => {
+        setupDepthCanvas(
+          depthBaseImage.naturalWidth,
+          depthBaseImage.naturalHeight
+        );
+      };
+
+      depthBaseImage.src = payload.preview_data_url;
+
+      invalidateGeneratedStage();
+    }
+
+    function createBlankDepthCanvasFromRgb() {
+      if (!rgbMetadata || depthSource) {
+        return;
+      }
+
+      const width = rgbMetadata.shape.width;
+      const height = rgbMetadata.shape.height;
+
+      const maxPreviewSide = 1000;
+      const scale = Math.min(
+        1.0,
+        maxPreviewSide / Math.max(width, height)
+      );
+
+      const previewWidth = Math.max(
+        1,
+        Math.round(width * scale)
+      );
+
+      const previewHeight = Math.max(
+        1,
+        Math.round(height * scale)
+      );
+
+      depthMetadata = {
+        shape: {
+          width,
+          height,
+        },
+      };
+
+      depthRawStats = {
+        mean: 0,
+        min: 0,
+        max: 0,
+        std: 0,
+        zero_percent: 100,
+        valid_pixels: 0,
+      };
+
+      depthScalar.value = 1.0;
+      renderDepthStats();
+
+      document.getElementById("depthLabel").textContent =
+        `RGB-only depth canvas: ${width} × ${height} · `
+        + `backend depth initialized to zeros.`;
+
+      depthBaseImage = null;
+      depthCleared = true;
+      strokes = [];
+      activeStroke = null;
+
+      setupDepthCanvas(
+        previewWidth,
+        previewHeight
+      );
+    }
+
+    function setupDepthCanvas(width, height) {
+      depthCanvas = document.createElement("canvas");
+
+      depthCanvas.width = width;
+      depthCanvas.height = height;
+
+      clearElement(depthDropzone);
+      depthDropzone.appendChild(depthCanvas);
+
+      depthCanvas.addEventListener(
+        "pointerdown",
+        beginStroke
+      );
+
+      depthCanvas.addEventListener(
+        "pointermove",
+        continueStroke
+      );
+
+      depthCanvas.addEventListener(
+        "pointerup",
+        endStroke
+      );
+
+      depthCanvas.addEventListener(
+        "pointercancel",
+        endStroke
+      );
+
+      depthCanvas.addEventListener(
+        "pointerleave",
+        endStroke
+      );
+
+      renderDepthCanvas();
+    }
+
+    function renderDepthCanvas() {
+      if (!depthCanvas) {
+        return;
+      }
+
+      const context = depthCanvas.getContext("2d");
+
+      context.clearRect(
+        0,
+        0,
+        depthCanvas.width,
+        depthCanvas.height
+      );
+
+      if (depthBaseImage && !depthCleared) {
+        context.drawImage(
+          depthBaseImage,
+          0,
+          0,
+          depthCanvas.width,
+          depthCanvas.height
+        );
+      } else {
+        context.fillStyle = "#000000";
+        context.fillRect(
+          0,
+          0,
+          depthCanvas.width,
+          depthCanvas.height
+        );
+      }
+
+      const drawVisualStroke = (
+        stroke,
+        alpha = 0.85
+      ) => {
+        if (
+          !stroke
+          || !stroke.points
+          || stroke.points.length === 0
+        ) {
+          return;
+        }
+
+        const radius = Math.max(
+          1,
+          stroke.radius_norm
+          * Math.min(
+            depthCanvas.width,
+            depthCanvas.height
+          )
+        );
+
+        context.save();
+
+        context.globalAlpha = alpha;
+        context.strokeStyle = "#5ce4a6";
+        context.fillStyle = "#5ce4a6";
+
+        context.lineCap = "round";
+        context.lineJoin = "round";
+
+        context.lineWidth = radius * 2;
+
+        const first = stroke.points[0];
+
+        const firstX = first[0] * depthCanvas.width;
+        const firstY = first[1] * depthCanvas.height;
+
+        if (stroke.points.length === 1) {
+          context.beginPath();
+
+          context.arc(
+            firstX,
+            firstY,
+            radius,
+            0,
+            Math.PI * 2
+          );
+
+          context.fill();
+
+        } else {
+          context.beginPath();
+          context.moveTo(firstX, firstY);
+
+          for (const point of stroke.points.slice(1)) {
+            context.lineTo(
+              point[0] * depthCanvas.width,
+              point[1] * depthCanvas.height
+            );
+          }
+
+          context.stroke();
+        }
+
+        context.restore();
+      };
+
+      for (const stroke of strokes) {
+        drawVisualStroke(stroke);
+      }
+
+      if (activeStroke) {
+        drawVisualStroke(activeStroke, 0.60);
+      }
+    }
+
+    function pointerToNormalizedPoint(event) {
+      const bounds = depthCanvas.getBoundingClientRect();
+
+      return [
+        clamp01(
+          (event.clientX - bounds.left)
+          / bounds.width
+        ),
+        clamp01(
+          (event.clientY - bounds.top)
+          / bounds.height
+        ),
+      ];
+    }
+
+    function beginStroke(event) {
+      if (!depthCanvas) {
+        return;
+      }
+
+      event.preventDefault();
+
+      depthCanvas.setPointerCapture(
+        event.pointerId
+      );
+
+      const bounds = depthCanvas.getBoundingClientRect();
+
+      const brushPreviewPixels = Math.max(
+        1,
+        numeric(
+          document.getElementById("brushRadius").value,
+          5
+        )
+      );
+
+      activeStroke = {
+        points: [
+          pointerToNormalizedPoint(event),
+        ],
+        depth_m: numeric(
+          document.getElementById("drawDepth").value,
+          1.0
+        ),
+        radius_norm: (
+          brushPreviewPixels
+          / Math.min(bounds.width, bounds.height)
+        ),
+      };
+
+      renderDepthCanvas();
+    }
+
+    function continueStroke(event) {
+      if (!activeStroke || !depthCanvas) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const point = pointerToNormalizedPoint(event);
+
+      const previous = activeStroke.points[
+        activeStroke.points.length - 1
+      ];
+
+      const dx = point[0] - previous[0];
+      const dy = point[1] - previous[1];
+
+      if (Math.sqrt(dx * dx + dy * dy) < 0.001) {
+        return;
+      }
+
+      activeStroke.points.push(point);
+      renderDepthCanvas();
+    }
+
+    function endStroke(event) {
+      if (!activeStroke) {
+        return;
+      }
+
+      if (
+        depthCanvas
+        && depthCanvas.hasPointerCapture(event.pointerId)
+      ) {
+        depthCanvas.releasePointerCapture(
+          event.pointerId
+        );
+      }
+
+      strokes.push(activeStroke);
+      activeStroke = null;
+
+      renderDepthCanvas();
+      invalidateGeneratedStage();
+    }
+
+    async function loadDemoPreview(kind, filename) {
+      if (!filename) {
+        return;
+      }
+
+      hideStatus();
+
+      const payload = await fetchJson(
+        `/api/demo-preview?kind=${encodeURIComponent(kind)}`
+        + `&path=${encodeURIComponent(filename)}`
+      );
+
+      if (kind === "rgb") {
+        setRgbPayload(payload);
+      } else {
+        setDepthPayload(payload);
+      }
+    }
+
+    async function uploadFile(kind, file) {
+      if (!file) {
+        return;
+      }
+
+      showStatus(`Uploading ${file.name}…`);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const payload = await fetchJson(
+        `/api/upload/${kind}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (kind === "rgb") {
+        rgbSelect.value = "";
+        setRgbPayload(payload);
+      } else {
+        depthSelect.value = "";
+        setDepthPayload(payload);
+      }
+
+      hideStatus();
+    }
+
+    function setupDropzone(
+      dropzone,
+      uploadInput,
+      kind
+    ) {
+      dropzone.addEventListener(
+        "dragover",
+        (event) => {
+          event.preventDefault();
+          dropzone.classList.add("dragging");
+        }
+      );
+
+      dropzone.addEventListener(
+        "dragleave",
+        () => {
+          dropzone.classList.remove("dragging");
+        }
+      );
+
+      dropzone.addEventListener(
+        "drop",
+        async (event) => {
+          event.preventDefault();
+
+          dropzone.classList.remove("dragging");
+
+          const file = event.dataTransfer.files[0];
+
+          if (!file) {
+            return;
+          }
+
+          try {
+            await uploadFile(kind, file);
+          } catch (error) {
+            showStatus(error.message, true);
+          }
+        }
+      );
+
+      dropzone.addEventListener(
+        "click",
+        (event) => {
+          if (
+            event.target
+            && event.target.tagName
+            && event.target.tagName.toLowerCase() === "canvas"
+          ) {
+            return;
+          }
+
+          uploadInput.click();
+        }
+      );
+
+      uploadInput.addEventListener(
+        "change",
+        async () => {
+          try {
+            await uploadFile(
+              kind,
+              uploadInput.files[0]
+            );
+          } catch (error) {
+            showStatus(error.message, true);
+          } finally {
+            uploadInput.value = "";
+          }
+        }
+      );
+    }
+
+    function updateProcessSliderLabel() {
+      const size = numeric(
+        processMinSize.value,
+        448
+      );
+
+      processMinSizeValue.textContent =
+        `${size} px`;
+
+      if (appConfig) {
+        document.getElementById("processSizeInfo").innerHTML =
+          `The shorter RGB side becomes <code>${size}px</code>. `
+          + `The longer side preserves aspect ratio and is rounded upward `
+          + `to a multiple of ViT patch size `
+          + `<code>${appConfig.patch_size}</code>.`;
+      }
+    }
+
+    function buildGeneratePayload() {
+      const seedText = document
+        .getElementById("randomSeed")
+        .value
+        .trim();
+
+      return {
+        rgb: rgbSource,
+        depth: depthSource,
+
+        depth_scalar: numeric(
+          depthScalar.value,
+          1.0
+        ),
+
+        clear_depth: depthCleared,
+        strokes: strokes,
+
+        use_perlin: document
+          .getElementById("usePerlin")
+          .checked,
+
+        use_pixel_noise: document
+          .getElementById("usePixel")
+          .checked,
+
+        use_patch_cuts: document
+          .getElementById("usePatch")
+          .checked,
+
+        threshold: numeric(
+          threshold.value,
+          0.5
+        ),
+
+        patch_min: Math.max(
+          1,
+          Math.round(
+            numeric(
+              document.getElementById("patchMin").value,
+              32
+            )
+          )
+        ),
+
+        patch_max: Math.max(
+          1,
+          Math.round(
+            numeric(
+              document.getElementById("patchMax").value,
+              128
+            )
+          )
+        ),
+
+        random_seed: (
+          seedText === ""
+            ? null
+            : Math.round(
+                numeric(seedText, 0)
+              )
+        ),
+      };
+    }
+
+    function renderGeneratedStage(result) {
+      document
+        .getElementById("generatedStageSection")
+        .classList.remove("hidden");
+
+      document.getElementById("generatedMetrics").innerHTML = [
+        metricCard(
+          "Reference valid pixels",
+          result.coverage.reference_valid_pixels.toLocaleString()
+        ),
+        metricCard(
+          "Observed reference pixels",
+          result.coverage.observed_reference_pixels.toLocaleString()
+        ),
+        metricCard(
+          "Removed reference pixels",
+          result.coverage.removed_reference_pixels.toLocaleString()
+        ),
+        metricCard(
+          "Removed reference area",
+          result.coverage.removed_reference_percent === null
+            ? "n/a"
+            : `${result.coverage.removed_reference_percent.toFixed(2)}%`
+        ),
+        metricCard(
+          "Random corruption pixels",
+          result.coverage.random_corruption_pixels.toLocaleString()
+        ),
+      ].join("");
+
+      document.getElementById("generatedImages").innerHTML = [
+        imageCard(
+          "Original reference depth — magma",
+          result.images.original_depth_magma,
+          "Reference remains untouched by clear/drawing/removal."
+        ),
+        imageCard(
+          "Editable depth — magma",
+          result.images.editable_depth_magma,
+          "After clear-to-zero and manual metric drawing."
+        ),
+        imageCard(
+          "Generated missing depth — magma",
+          result.images.generated_missing_depth_magma,
+          "Frozen sparse depth used by stage 2."
+        ),
+      ].join("");
+    }
+
+    function renderProcessResults(result) {
+      const metrics = result.metrics;
+      const coverage = result.coverage;
+      const model = result.model;
+
+      document.getElementById("rmseMetrics").innerHTML = [
+        metricCard(
+          "Global RMSE",
+          formatMeters(metrics.global_rmse_m)
+        ),
+        metricCard(
+          "Removed / reconstructed RMSE",
+          formatMeters(metrics.removed_area_rmse_m)
+        ),
+        metricCard(
+          "Observed input area RMSE",
+          formatMeters(metrics.observed_area_rmse_m)
+        ),
+      ].join("");
+
+      document.getElementById("coverageMetrics").innerHTML = [
+        metricCard(
+          "Reference valid pixels",
+          coverage.reference_valid_pixels.toLocaleString()
+        ),
+        metricCard(
+          "Observed reference pixels",
+          coverage.observed_reference_pixels.toLocaleString()
+        ),
+        metricCard(
+          "Removed reference pixels",
+          coverage.removed_reference_pixels.toLocaleString()
+        ),
+        metricCard(
+          "Removed reference area",
+          coverage.removed_reference_percent === null
+            ? "n/a"
+            : `${coverage.removed_reference_percent.toFixed(2)}%`
+        ),
+      ].join("");
+
+      document.getElementById("modelInfo").innerHTML =
+        `Processing shape: `
+        + `<code>${model.process_width} × ${model.process_height}</code>. `
+        + `Processing minimum side: `
+        + `<code>${model.process_min_size}px</code>. `
+        + `ViT patch size: <code>${model.patch_size}</code>. `
+        + `Checkpoint max depth: `
+        + `<code>${model.checkpoint_max_depth_m.toFixed(2)}m</code>. `
+        + `Editable input max depth: `
+        + `<code>${model.editable_max_depth_m.toFixed(4)}m</code>. `
+        + `Model range scale: `
+        + `<code>${model.scale_to_model.toFixed(6)}</code>. `
+        + `Output restore scale: `
+        + `<code>${model.restore_scale.toFixed(6)}</code>.`;
+
+      document.getElementById("resultImages").innerHTML = [
+        imageCard(
+          "RGB input",
+          result.images.rgb
+        ),
+        imageCard(
+          "Original reference depth — magma",
+          result.images.original_depth_magma
+        ),
+        imageCard(
+          "Frozen generated sparse depth — magma",
+          result.images.generated_depth_magma
+        ),
+        imageCard(
+          "Completed depth — magma",
+          result.images.completed_depth_magma
+        ),
+        imageCard(
+          "Absolute depth error — magma",
+          result.images.absolute_error_magma,
+          "Error is measured only where original reference depth is valid."
+        ),
+      ].join("");
+
+      const sdp = result.sdp;
+
+      document.getElementById("sdpInfo").innerHTML =
+        `${sdp.source}<br />`
+        + `Normalization mode: <code>${sdp.normalization_mode}</code>. `
+        + (
+          sdp.normalization_max_m === null
+            ? ""
+            : `Normalization maximum: `
+              + `<code>${sdp.normalization_max_m.toFixed(4)}m</code>. `
+        )
+        + `Only cosine channels are displayed; sine channels have the same `
+        + `frequency with a phase shift.`;
+
+      document.getElementById("sdpImages").innerHTML =
+        sdp.channels.map((channel) => {
+          const cycleText = (
+            channel.unique_2pi_distance_m === null
+              ? "n/a"
+              : `${channel.unique_2pi_distance_m.toFixed(6)} m`
+          );
+
+          return imageCard(
+            `Cosine temperature position ${channel.temperature_percent}%`,
+            channel.image,
+            `Frequency pair index: ${channel.frequency_pair_index}<br />`
+            + `Cosine channel: ${channel.cosine_channel}<br />`
+            + `dim_t: ${channel.dim_t.toExponential(4)}<br />`
+            + `2π unique depth distance: `
+            + `<strong>${cycleText}</strong>`
+          );
+        }).join("");
+
+      document.getElementById("pcaImages").innerHTML = [
+        imageCard(
+          "RGB encoder features — PCA",
+          result.pca.rgb,
+          "PCA visualization resized to original RGB resolution."
+        ),
+        imageCard(
+          "Depth encoder features — PCA",
+          result.pca.depth,
+          "PCA visualization resized to original RGB resolution."
+        ),
+      ].join("");
+
+      document
+        .getElementById("resultsSection")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("resultsSection")
+        .scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // UI events
+    // ----------------------------------------------------------------
+
+    rgbSelect.addEventListener(
+      "change",
+      async () => {
+        try {
+          await loadDemoPreview(
+            "rgb",
+            rgbSelect.value
+          );
+        } catch (error) {
+          showStatus(error.message, true);
+        }
+      }
+    );
+
+    depthSelect.addEventListener(
+      "change",
+      async () => {
+        try {
+          await loadDemoPreview(
+            "depth",
+            depthSelect.value
+          );
+        } catch (error) {
+          showStatus(error.message, true);
+        }
+      }
+    );
+
+    depthScalar.addEventListener(
+      "input",
+      () => {
+        renderDepthStats();
+        invalidateGeneratedStage();
+      }
+    );
+
+    threshold.addEventListener(
+      "input",
+      () => {
+        thresholdValue.textContent =
+          numeric(
+            threshold.value,
+            0.5
+          ).toFixed(2);
+
+        invalidateGeneratedStage();
+      }
+    );
+
+    processMinSize.addEventListener(
+      "input",
+      updateProcessSliderLabel
+    );
+
+    for (const elementId of [
+      "usePerlin",
+      "usePixel",
+      "usePatch",
+      "patchMin",
+      "patchMax",
+      "randomSeed",
+      "drawDepth",
+      "brushRadius",
+    ]) {
+      document
+        .getElementById(elementId)
+        .addEventListener(
+          "input",
+          invalidateGeneratedStage
+        );
+    }
+
+    document
+      .getElementById("clearDepthButton")
+      .addEventListener(
+        "click",
+        () => {
+          depthCleared = true;
+          strokes = [];
+          activeStroke = null;
+
+          renderDepthCanvas();
+          invalidateGeneratedStage();
+        }
+      );
+
+    document
+      .getElementById("undoStrokeButton")
+      .addEventListener(
+        "click",
+        () => {
+          if (strokes.length > 0) {
+            strokes.pop();
+          }
+
+          renderDepthCanvas();
+          invalidateGeneratedStage();
+        }
+      );
+
+    document
+      .getElementById("resetDepthButton")
+      .addEventListener(
+        "click",
+        () => {
+          depthCleared = false;
+          strokes = [];
+          activeStroke = null;
+
+          renderDepthCanvas();
+          invalidateGeneratedStage();
+        }
+      );
+
+    document
+      .getElementById("generateMissingButton")
+      .addEventListener(
+        "click",
+        async () => {
+          if (!rgbSource) {
+            showStatus(
+              "Please select or upload an RGB image first.",
+              true
+            );
+
+            return;
+          }
+
+          const button = document.getElementById(
+            "generateMissingButton"
+          );
+
+          button.disabled = true;
+          button.textContent = "Generating missing depth…";
+
+          try {
+            showStatus(
+              "Generating sparse / missing depth stage…"
+            );
+
+            const result = await fetchJson(
+              "/api/generate-missing-depth",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                  buildGeneratePayload()
+                ),
+              }
+            );
+
+            generatedStageId = result.stage_id;
+
+            document
+              .getElementById("processButton")
+              .removeAttribute("disabled");
+
+            renderGeneratedStage(result);
+
+            showStatus(
+              "Missing depth was generated and frozen. "
+              + "You may now run model processing."
+            );
+
+          } catch (error) {
+            showStatus(
+              error.message,
+              true
+            );
+
+          } finally {
+            button.disabled = false;
+            button.textContent = "Generate missing depth";
+          }
+        }
+      );
+
+    document
+      .getElementById("processButton")
+      .addEventListener(
+        "click",
+        async () => {
+          if (!generatedStageId) {
+            showStatus(
+              "Please generate missing depth before processing.",
+              true
+            );
+
+            return;
+          }
+
+          const button = document.getElementById(
+            "processButton"
+          );
+
+          button.disabled = true;
+          button.textContent = "Processing on cuda:0…";
+
+          try {
+            showStatus(
+              "Running depth completion inference on cuda:0…"
+            );
+
+            const result = await fetchJson(
+              "/api/process",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  stage_id: generatedStageId,
+                  process_min_size: numeric(
+                    processMinSize.value,
+                    448
+                  ),
+                }),
+              }
+            );
+
+            renderProcessResults(result);
+            hideStatus();
+
+          } catch (error) {
+            showStatus(
+              error.message,
+              true
+            );
+
+          } finally {
+            button.disabled = false;
+            button.textContent = "Process depth completion";
+          }
+        }
+      );
+
+    setupDropzone(
+      rgbDropzone,
+      rgbUpload,
+      "rgb"
+    );
+
+    setupDropzone(
+      depthDropzone,
+      depthUpload,
+      "depth"
+    );
+
+    Promise.all([
+      loadConfig(),
+      loadDemoFiles(),
+    ]).catch((error) => {
+      showStatus(
+        `Startup failed: ${error.message}`,
+        true
+      );
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+Acknowledgements:
+
+Portions of the Materials may utilize the following subcomponents or dependencies with separate copyright notices and license terms, the use of which is hereby acknowledged:
+
+---------------------------------------------------------
+PART 1: SEE NOTICES BELOW WITH RESPECT TO SOFTWARE FILES:
+---------------------------------------------------------
+
+The following training software was made available under the following terms, which as applicable apply to the applicable training software (i.e., any use of this software is subject, as applicable, to any additional terms and conditions of the corresponding software license in addition to the terms and conditions of the License to the Materials):
+Name	Link
+A. dinov2 [https://github.com/facebookresearch/dinov2]
+B. dino [https://github.com/facebookresearch/dino]
+C. moco [https://github.com/facebookresearch/moco]
+D. PyTorch/pytorch [https://github.com/pytorch/pytorch]
+E. PyTorch/examples [https://github.com/pytorch/examples]
+
+-------------------------------------------------
+PART 2: SEE NOTICES BELOW WITH RESPECT TO MODELS:
+-------------------------------------------------
+
+The following models were derrived from the following models were made available under the following terms, which as applicable apply to the applicable model (i.e., any use of models derived from such models are subject, as applicable, to any additional terms and conditions of the corresponding model license in addition to the terms and conditions of the License to the Materials):
+
+A. Semantic segmentation decoder is derrived from DINOv2 [https://github.com/facebookresearch/dinov2]
+B. Depth estimation decoder is derrived from DINOv2 [https://github.com/facebookresearch/dinov2]
+
+---------------------------------------------------
+PART 3: SEE NOTICES BELOW WITH RESPECT TO DATASETS:
+---------------------------------------------------
+
+The following datasets, which are not being distributed herewith, were made available under the following terms, which as applicable apply to the use of checkpoints trained using such datasets (i.e., any use of checkpoints derived from such datasets are subject, as applicable, to any additional terms and conditions of the corresponding dataset license in addition to the terms and conditions of the License to the Materials):
+
+A. ImageNet-19K [https://image-net.org/download.php]
+B. Mapillary [https://www.mapillary.com/dataset/assets/mapillary-object-dataset-research-use-license-2019.pdf]
+C. Google Landmarks v2 [https://github.com/cvdfoundation/google-landmark]
+D. Habitat [https://matterport.com/legal/matterport-end-user-license-agreement-academic-use-model-data]
+E. ARKitScenes [https://github.com/apple/ARKitScenes]
+F. Blended MVS [https://github.com/YoYo000/BlendedMVS]
+G. MegaDepth [https://github.com/zhengqili/MegaDepth/blob/master/LICENSE]
+H. ScanNet++ [http://www.scan-net.org/]
+I. CO3D-v2 [https://ai.meta.com/datasets/co3d-downloads/]
+J. Map-free [https://research.nianticlabs.com/mapfree-reloc-benchmark/dataset]
+K. WildRgb [https://github.com/wildrgbd/wildrgbd]
+L. VirtualKitti [https://europe.naverlabs.com/proxy-virtual-worlds-vkitti-2/]
+M. Unreal4K [https://github.com/CVLAB-Unibo/neural-disparity-refinement/blob/main/LICENSE]
+N. TartanAir [https://theairlab.org/tartanair-dataset/]
+O. DL3DV [https://github.com/DL3DV-10K/Dataset]
+P. BEDLAM [https://bedlam.is.tue.mpg.de/]
+Q. AGORA [https://agora.is.tue.mpg.de/]
+R. CUFFS [https://download.europe.naverlabs.com/ComputerVision/MultiHMR/CUFFS/]
+S. UBody [https://osx-ubody.github.io/]
+
+
+
+

@@ -1,0 +1,62 @@
+CroCo Notice of software and datasets used in developing checkpoints for pretrained models:
+
+---------------------------------------------------------
+PART 1: SEE NOTICES BELOW WITH RESPECT TO SOFTWARE FILES:
+---------------------------------------------------------
+
+Portions of the materials listed in this PART 1 that include modified and/or unmodified elements from pre-existing software are distributed under the same terms and conditions as those under which such pre-existing software is made available.
+
+(1.A) https://github.com/facebookresearch/habitat-sim software was used for pre-processing the dataset (2.D) referenced below, which software is made available under the following license (MIT License): 
+https://github.com/facebookresearch/habitat-sim/blob/main/LICENSE
+
+-----------------------------------------------------
+PART 2: SEE NOTICES BELOW WITH RESPECT TO DATA FILES:
+-----------------------------------------------------
+
+The datasets listed in this PART 2, which are not being distributed herewith, are available under the following terms and conditions, which as applicable also apply to the use of checkpoints distributed herewith (i.e., any use of checkpoints derived from such datasets are subject, as applicable, to any additional terms and conditions of the corresponding dataset license in addition to the terms and conditions of the License to the materials):
+
+Summary:
+See (2.A) below: Habitat-Sim HM3D (https://aihabitat.org/datasets/hm3d/);
+See (2.B) below: ScanNet (http://www.scan-net.org/);
+See (2.C) below: Replica (https://github.com/facebookresearch/Replica-Dataset);
+See (2.D) below: ReplicaCAD (https://aihabitat.org/datasets/replica_cad/);
+See (2.E) below: ARKitScenes (https://github.com/apple/ARKitScenes/blob/main/DATA.md);
+See (2.F) below: MegaDepth (https://www.cs.cornell.edu/projects/megadepth/);
+See (2.G) below: 3D_Street_View (https://github.com/amir32002/3D_Street_View)
+
+===  
+(2.A) Habitat-Sim HM3D, is made available under the following license (Matterport End User License Agreement for Academic Use of Model Data): 
+https://matterport.com/legal/matterport-end-user-license-agreement-academic-use-model-data
+
+===
+(2.B) ScanNet, is made available under the following license (ScanNet Terms of Use): 
+https://kaldir.vc.in.tum.de/scannet/ScanNet_TOS.pdf
+
+===
+(2.C) Replica, is made available under the following license (Replica Dataset Research Terms): 
+https://github.com/facebookresearch/Replica-Dataset/blob/main/LICENSE
+
+===
+(2.D) ReplicaCAD habitat-sim, is made available under the following license (CC BY 4.0): 
+https://creativecommons.org/licenses/by/4.0/
+
+===
+(2.E) ARKitScenes, is made available under the following license (CC BY-NC-SA 4.0): 
+https://github.com/apple/ARKitScenes/blob/951af73d20406acf608061c16774f770c61b1405/README.md#license
+
+===
+(2.F) MegaDepth, is made available under the following license (CC BY 4.0): 
+https://creativecommons.org/licenses/by/4.0/
+
+===
+(2.G) 3D_Street_View, is made available under the following license (Apache License Version 2.0): 
+https://github.com/amir32002/3D_Street_View/blob/master/LICENSE
+
+
+-----------------------------------------------------------
+PART 3: SEE NOTICES BELOW WITH RESPECT TO CHECKPOINT FILES:
+-----------------------------------------------------------
+ 
+Checkpoints distributed herewith have been trained using the data files listed in PART 2 except:
+CroCo.pth was trained using PART 2 (2.A) to (2.D) data files, pre-processed using PART 1 (1.A) software.
+
