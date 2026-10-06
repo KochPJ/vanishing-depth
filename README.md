@@ -18,6 +18,8 @@ Using Sinusoidal Depth Preprocessing (SDP) for robust depth encoding
 # Models
 Download data.zip and unzip to /data from **[here](https://1drv.ms/u/c/b60aa91829049b0d/IQCp7PLsSSLDRZ8wSaqs59ydAVPkqmGj64Yh0X81WypdzRY?e=HmUpua)**
 
+# Run / Test
+Start local web-application for testing with **launch_webapp.sh** (requires the model/data download)
 
 # Citing this work:
 If you find this repository useful, please consider giving a star :star: and citation:
