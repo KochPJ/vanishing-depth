@@ -21,6 +21,8 @@ Download data.zip and unzip to /data from **[here](https://1drv.ms/u/c/b60aa9182
 # Run / Test
 Start local web-application for testing with **launch_webapp.sh** (requires the model/data download)
 
+Show mmseg results on SUNRGBD with **viz_mmseg_sunrgbd_results.sh** (requires the model/data download)
+
 # Citing this work:
 If you find this repository useful, please consider giving a star :star: and citation:
 ```
