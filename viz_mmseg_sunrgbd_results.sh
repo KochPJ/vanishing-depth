@@ -1,1 +1,1 @@
-python tools/analysis_tools/analyze_logs.py work_dirs/mask2former_RGBDVIT_DINOv2_SunRGBD/20250901_001305/vis_data/20250901_001305.json
+python tools/analysis_tools/analyze_logs.py data/work_dirs/mask2former_RGBDVIT_DINOv2_SunRGBD/20250901_001305/vis_data/20250901_001305.json
